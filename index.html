@@ -36,7 +36,7 @@
       }
     </style>
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
-    <script src="C:\Users\allso\Downloads\contractABI.js"></script>
+    <script src="contractABI.js"></script>
 </head>
 <body>
   <div class="marquee">
@@ -45,7 +45,7 @@
 
   <button id="mint-button">Mint QUAKE PASS</button>
   <input class="mint-input" id="mint-input"/>
-  <button id="mnt-btn" onclick="mint()">MINT QUAKE PASS</button>
+  <button id="mnt-btn" onclick="mintNFT()">MINT QUAKE PASS</button>
 
   <script>
     let web3;
@@ -54,10 +54,18 @@
     async function initWeb3() {
       if (typeof window.ethereum !== 'undefined') {
         web3 = new Web3(window.ethereum);
-        await window.ethereum.enable(); // Request user permission
-        return true;
+        try {
+          await window.ethereum.enable(); // Request user permission
+          console.log('Web3 initialized');
+          return true;
+        } catch (error) {
+          console.error('Error while initializing Web3:', error);
+          return false;
+        }
+      } else {
+        console.error('Web3 not available');
+        return false;
       }
-      return false;
     }
 
     async function initContract() {
@@ -66,21 +74,33 @@
       const contractAddress = '0x4772f95fc2dca4564c6ec0659cadaa068cc4578f';
 
       contract = new web3.eth.Contract(contractABI, contractAddress);
+      console.log('Contract initialized:', contract);
     }
 
     async function mintNFT() {
-      const accounts = await web3.eth.getAccounts();
-      const account = accounts[0];
+      try {
+        const accounts = await web3.eth.getAccounts();
+        const account = accounts[0];
+        console.log('Minting NFT for account:', account);
 
-      contract.methods.mintNFT(account).send({ from: account })
-        .on('transactionHash', function(hash) {
-          console.log("Transaction Hash:", hash);
-        })
-        .on('confirmation', function(confirmationNumber, receipt) {
-          console.log("Confirmation Number:", confirmationNumber);
-          console.log("Receipt:", receipt);
-        })
-        .on('error', console.error);
+        if (typeof contract !== 'undefined') {
+          contract.methods.mintNFT(account).send({ from: account })
+            .on('transactionHash', function(hash) {
+              console.log("Transaction Hash:", hash);
+            })
+            .on('confirmation', function(confirmationNumber, receipt) {
+              console.log("Confirmation Number:", confirmationNumber);
+              console.log("Receipt:", receipt);
+            })
+            .on('error', function(error) {
+              console.error('Error while minting NFT:', error);
+            });
+        } else {
+          console.error('Contract is undefined');
+        }
+      } catch (error) {
+        console.error('Error while minting NFT:', error);
+      }
     }
 
     document.getElementById('mint-button').addEventListener('click', mintNFT);
@@ -88,8 +108,6 @@
     async function initialize() {
       if (await initWeb3()) {
         await initContract();
-      } else {
-        console.log("Web3 not available");
       }
     }
 
