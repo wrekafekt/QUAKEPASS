@@ -41,7 +41,7 @@
         function initWeb3() {
             return new Promise((resolve, reject) => {
                 if (typeof window.ethereum !== 'undefined') {
-                    window.ethereum.enable()
+                    window.ethereum.request({ method: 'eth_requestAccounts' })
                         .then(() => {
                             web3 = new Web3(window.ethereum);
                             console.log('Web3 initialized');
@@ -107,7 +107,7 @@
             await initContract();
         }
 
-        loadContractABI().catch(error => console.error('Error:', error));
+        loadContractABI();
     </script>
 </head>
 <body>
