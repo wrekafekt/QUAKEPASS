@@ -107,7 +107,7 @@
             await initContract();
         }
 
-        loadContractABI();
+        loadContractABI().catch(error => console.error('Error:', error));
     </script>
 </head>
 <body>
