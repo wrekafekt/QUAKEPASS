@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>quake</title>
-    <link rel="shortcut icon" href="INSERT QUAKE ICON HERE" type="image/png">
     <style>
       body {
         display: flex;
@@ -35,9 +34,30 @@
         100% { transform: translateX(-100%); }
       }
     </style>
-    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+       <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js" integrity="sha512-qfNEgqdLEd+OkOZSZxb9kPOvOz62NNoPd0A5W5G8LMwfdtKn3+5D/tx5zvgu+7IaPqkFq60VfJ+Mn1bVJjMx/w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+       <script>
+         // Check if MetaMask is installed and is connected
+         if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
+           // Check if the current network is Polygon
+           ethereum.request({ method: 'net_version' }, (error, networkId) => {
+             if (error) {
+               console.error(error);
+             } else if (networkId === '137') {
+               // The current network is Polygon
+               document.getElementById('network-status').textContent = 'Connected to Polygon';
+             } else {
+               // The current network is not Polygon
+               document.getElementById('network-status').textContent = 'WRONG NETWORK';
+             }
+           });
+         } else {
+           // MetaMask is not installed or is not connected
+           document.getElementById('network-status').textContent = 'MetaMask not found';
+         }
+       </script>
+    
     <script type="module">
-      const contractABI = const contractABI = [
+       const contractABI = [
     [
         {
             "inputs": [],
