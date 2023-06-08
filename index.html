@@ -72,15 +72,23 @@
     }
 
     async function initContract() {
-      // The address of your deployed contract
-      // Note: You should replace this with the address of your deployed contract
-      const contractAddress = '0x4772f95fc2dca4564c6ec0659cadaa068cc4578f';
+  // The address of your deployed contract
+  // Note: You should replace this with the address of your deployed contract
+  const contractAddress = '0x4772f95fc2dca4564c6ec0659cadaa068cc4578f';
 
-      contract = new web3.eth.Contract(contractABI, contractAddress);
-      console.log('Contract initialized:', contract);
+  try {
+    const accounts = await web3.eth.getAccounts();
+    const account = accounts[0];
+    console.log('Minting NFT for account:', account);
 
-      document.getElementById('mint-button').addEventListener('click', mintNFT);
-    }
+    contract = new web3.eth.Contract(contractABI, contractAddress);
+    console.log('Contract initialized:', contract);
+
+    document.getElementById('mint-button').addEventListener('click', mintNFT);
+  } catch (error) {
+    console.error('Error while initializing contract:', error);
+  }
+}
 
     async function mintNFT() {
       try {
