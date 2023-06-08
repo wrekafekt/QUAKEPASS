@@ -36,47 +36,44 @@
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js" integrity="sha512-qfNEgqdLEd+OkOZSZxb9kPOvOz62NNoPd0A5W5G8LMwfdtKn3+5D/tx5zvgu+7IaPqkFq60VfJ+Mn1bVJjMx/w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-      // Check if MetaMask is installed and is connected
-      if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
-        // Check if the current network is Polygon
-        ethereum.request({ method: 'net_version' }, (error, networkId) => {
-          if (error) {
-            console.error(error);
-          } else if (networkId === '137') {
-            // The current network is Polygon
-            document.getElementById('network-status').textContent = 'Connected to Polygon';
-          } else {
-            // The current network is not Polygon
-            document.getElementById('network-status').textContent = 'WRONG NETWORK';
-          }
-        });
-      } else {
-        // MetaMask is not installed or is not connected
-        document.getElementById('network-status').textContent = 'MetaMask not found';
+      function isMetaMaskInstalled() {
+        return typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask;
       }
-    </script>
-    <script type="module">
-      // Declare contractABI as a global variable
-      let contractABI;
 
-      // Load contractABI from external file
-      fetch('https://raw.githubusercontent.com/wrekafekt/QUAKEPASS/main/contractABI.js')
-        .then(response => response.text())
-        .then(data => {
-          // Parse the fetched data as JavaScript code
-          const script = document.createElement('script');
-          script.innerHTML = data;
-          document.head.appendChild(script);
-          contractABI = window.contractABI; // Assign the loaded contractABI to the global variable
-          initialize(); // Call the initialize function after loading the contractABI
-        })
-        .catch(error => {
-          console.error('Error loading contractABI:', error);
+      function getNetworkId() {
+        return new Promise((resolve, reject) => {
+          ethereum.request({ method: 'net_version' }, (error, networkId) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(networkId);
+            }
+          });
         });
+      }
+
+      async function checkMetaMask() {
+        try {
+          const isInstalled = isMetaMaskInstalled();
+          if (isInstalled) {
+            const networkId = await getNetworkId();
+            if (networkId === '137') {
+              document.getElementById('network-status').textContent = 'Connected to Polygon';
+            } else {
+              document.getElementById('network-status').textContent = 'WRONG NETWORK';
+            }
+          } else {
+            document.getElementById('network-status').textContent = 'MetaMask not found';
+          }
+        } catch (error) {
+          console.error(error);
+          document.getElementById('network-status').textContent = 'Error checking MetaMask';
+        }
+      }
 
       function initWeb3() {
         return new Promise((resolve, reject) => {
-          if (typeof window.ethereum !== 'undefined') {
+          if (isMetaMaskInstalled()) {
             web3 = new Web3(window.ethereum);
             window.ethereum.enable()
               .then(() => {
@@ -147,6 +144,11 @@
         await initWeb3();
         await initContract();
       }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        checkMetaMask();
+        initialize();
+      });
     </script>
 </head>
 <body>
@@ -155,6 +157,6 @@
   </div>
 
   <button id="mint-button">Mint QUAKE PASS</button>
-
+  <p id="network-status"></p>
 </body>
 </html>
