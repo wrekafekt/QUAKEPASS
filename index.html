@@ -36,6 +36,9 @@
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js" integrity="sha512-qfNEgqdLEd+OkOZSZxb9kPOvOz62NNoPd0A5W5G8LMwfdtKn3+5D/tx5zvgu+7IaPqkFq60VfJ+Mn1bVJjMx/w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
+      let web3;
+      let contractABI;
+
       function isMetaMaskInstalled() {
         return typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask;
       }
@@ -102,7 +105,7 @@
           console.log('Minting NFT for account:', account);
 
           if (contractABI) {
-            contract = new web3.eth.Contract(contractABI, contractAddress);
+            const contract = new web3.eth.Contract(contractABI, contractAddress);
             console.log('Contract initialized:', contract);
 
             document.getElementById('mint-button').addEventListener('click', mintNFT);
@@ -120,7 +123,8 @@
           const account = accounts[0];
           console.log('Minting NFT for account:', account);
 
-          if (contract) {
+          if (contractABI) {
+            const contract = new web3.eth.Contract(contractABI, contractAddress);
             contract.methods.mintNFT(account).send({ from: account })
               .on('transactionHash', function(hash) {
                 console.log("Transaction Hash:", hash);
@@ -133,7 +137,7 @@
                 console.error('Error while minting NFT:', error);
               });
           } else {
-            console.error('Contract not available');
+            console.error('Contract ABI not available');
           }
         } catch (error) {
           console.error('Error while minting NFT:', error);
