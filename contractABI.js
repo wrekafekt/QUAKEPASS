@@ -510,6 +510,3 @@ const contractABI = [
         }
     ]
 ];
-
-// Export the contractABI so that it can be used in other files
-export default contractABI;
