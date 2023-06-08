@@ -1,0 +1,12 @@
+{
+  "id": 0,
+  "description": "Quake Pass #0",
+  "image": "https://github.com/wrekafekt/quake/blob/main/quake_pass_proto.png",
+  "name": "Quake Pass",
+  "attributes": [
+    {
+      "trait_type": "Attendance Count",
+      "value": "0"
+    }
+  ]
+}
