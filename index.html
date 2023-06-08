@@ -36,9 +36,89 @@
       }
     </style>
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
-    <script src="/contractABI.js"></script>
+    <script src="contractABI.js"></script>
     <script>
-      let contractABI = window.contractABI;
+      let contractABI;
+
+      // Load contractABI from external file
+      fetch('contractABI.js')
+        .then(response => response.text())
+        .then(data => {
+          const script = document.createElement('script');
+          script.innerHTML = data;
+          document.head.appendChild(script);
+          contractABI = window.contractABI;
+          initialize();
+        })
+        .catch(error => {
+          console.error('Error loading contractABI:', error);
+        });
+
+      function initWeb3() {
+        return new Promise((resolve, reject) => {
+          if (typeof window.ethereum !== 'undefined') {
+            web3 = new Web3(window.ethereum);
+            window.ethereum.enable()
+              .then(() => {
+                console.log('Web3 initialized');
+                resolve();
+              })
+              .catch(error => {
+                console.error('Error while initializing Web3:', error);
+                reject();
+              });
+          } else {
+            console.error('Web3 not available');
+            reject();
+          }
+        });
+      }
+
+      async function initContract() {
+        // The address of your deployed contract
+        // Note: You should replace this with the address of your deployed contract
+        const contractAddress = '0x4772f95fc2dca4564c6ec0659cadaa068cc4578f';
+
+        try {
+          const accounts = await web3.eth.getAccounts();
+          const account = accounts[0];
+          console.log('Minting NFT for account:', account);
+
+          contract = new web3.eth.Contract(contractABI, contractAddress);
+          console.log('Contract initialized:', contract);
+
+          document.getElementById('mint-button').addEventListener('click', mintNFT);
+        } catch (error) {
+          console.error('Error while initializing contract:', error);
+        }
+      }
+
+      async function mintNFT() {
+        try {
+          const accounts = await web3.eth.getAccounts();
+          const account = accounts[0];
+          console.log('Minting NFT for account:', account);
+
+          contract.methods.mintNFT(account).send({ from: account })
+            .on('transactionHash', function(hash) {
+              console.log("Transaction Hash:", hash);
+            })
+            .on('confirmation', function(confirmationNumber, receipt) {
+              console.log("Confirmation Number:", confirmationNumber);
+              console.log("Receipt:", receipt);
+            })
+            .on('error', function(error) {
+              console.error('Error while minting NFT:', error);
+            });
+        } catch (error) {
+          console.error('Error while minting NFT:', error);
+        }
+      }
+
+      async function initialize() {
+        await initWeb3();
+        await initContract();
+      }
     </script>
 </head>
 <body>
@@ -47,78 +127,6 @@
   </div>
 
   <button id="mint-button">Mint QUAKE PASS</button>
-  <input class="mint-input" id="mint-input"/>
-  <button id="mnt-btn" onclick="mintNFT()">MINT QUAKE PASS</button>
 
-  <script>
-    let web3;
-    let contract;
-
-    async function initWeb3() {
-      if (typeof window.ethereum !== 'undefined') {
-        web3 = new Web3(window.ethereum);
-        try {
-          await window.ethereum.enable(); // Request user permission
-          console.log('Web3 initialized');
-          return true;
-        } catch (error) {
-          console.error('Error while initializing Web3:', error);
-          return false;
-        }
-      } else {
-        console.error('Web3 not available');
-        return false;
-      }
-    }
-
-    async function initContract() {
-  // The address of your deployed contract
-  // Note: You should replace this with the address of your deployed contract
-  const contractAddress = '0x4772f95fc2dca4564c6ec0659cadaa068cc4578f';
-
-  try {
-    const accounts = await web3.eth.getAccounts();
-    const account = accounts[0];
-    console.log('Minting NFT for account:', account);
-
-    contract = new web3.eth.Contract(contractABI, contractAddress);
-    console.log('Contract initialized:', contract);
-
-    document.getElementById('mint-button').addEventListener('click', mintNFT);
-  } catch (error) {
-    console.error('Error while initializing contract:', error);
-  }
-}
-
-    async function mintNFT() {
-      try {
-        const accounts = await web3.eth.getAccounts();
-        const account = accounts[0];
-        console.log('Minting NFT for account:', account);
-
-        contract.methods.mintNFT(account).send({ from: account })
-          .on('transactionHash', function(hash) {
-            console.log("Transaction Hash:", hash);
-          })
-          .on('confirmation', function(confirmationNumber, receipt) {
-            console.log("Confirmation Number:", confirmationNumber);
-            console.log("Receipt:", receipt);
-          })
-          .on('error', function(error) {
-            console.error('Error while minting NFT:', error);
-          });
-      } catch (error) {
-        console.error('Error while minting NFT:', error);
-      }
-    }
-
-    async function initialize() {
-      if (await initWeb3()) {
-        await initContract();
-      }
-    }
-
-    initialize();
-  </script>
 </body>
 </html>
