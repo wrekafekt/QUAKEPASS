@@ -556,20 +556,6 @@ export default contractABI;;
     <script>
       let contractABI;
 
-      // Load contractABI from external file
-      fetch('https://raw.githubusercontent.com/wrekafekt/QUAKEPASS/main/contractABI.js')
-        .then(response => response.text())
-        .then(data => {
-          const script = document.createElement('script');
-          script.innerHTML = data;
-          document.head.appendChild(script);
-          contractABI = window.contractABI;
-          initialize();
-        })
-        .catch(error => {
-          console.error('Error loading contractABI:', error);
-        });
-
       function initWeb3() {
         return new Promise((resolve, reject) => {
           if (typeof window.ethereum !== 'undefined') {
